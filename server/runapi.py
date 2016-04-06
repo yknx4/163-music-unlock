@@ -1,4 +1,4 @@
-from flask import Flask,request,jsonify
+from flask import Flask,request,jsonify, abort
 import json, requests, hashlib, random
 from urllib import quote
 
@@ -17,10 +17,16 @@ def encrypted_id(id):
 	return result
 
 @app.route("/eapi/song/enhance/<player_or_download>/url", methods=['GET','POST'])
-def get_song_api(player_or_download):
+def get_song_api(player_or_download, retry=10):
+	if (retry <= 0):
+		abort(502)
 	if (not 'ids' in request.args):
 		return get_ios_response(player_or_download)
-	origin_result = requests.post('http://music.163.com/eapi/song/enhance/' + player_or_download + '/url?br=' + quote(request.args['br']) + '&ids=' + quote(request.args['ids']), data={'params':request.form['params']}, headers={'Cookie':request.headers['Cookie']})
+	try:
+		origin_result = requests.post('http://music.163.com/eapi/song/enhance/' + player_or_download + '/url?br=' + quote(request.args['br']) + '&ids=' + quote(request.args['ids']), data={'params':request.form['params']}, headers={'Cookie':request.headers['Cookie']}, timeout=1.5)
+	except Exception:
+		print('timeout in get_song_api(). Retrying.')
+		return get_song_api(player_or_download, retry-1)
 	origin_result_json = json.loads(origin_result.content)
 	if (player_or_download == 'player' and origin_result_json['data'][0]['url'] != None):
 		print('Returning original player result')
@@ -32,8 +38,14 @@ def get_song_api(player_or_download):
 	song_id = song_id[0:song_id.find('_')]
 	return jsonify(get_music_resource(song_id, player_or_download))
 
-def get_ios_response(player_or_download):
-	origin_result = requests.post('http://music.163.com/eapi/song/enhance/' + player_or_download + '/url', data={'params':request.form['params']})
+def get_ios_response(player_or_download, retry=10):
+	if (retry <= 0):
+		abort(502)
+	try:
+		origin_result = requests.post('http://music.163.com/eapi/song/enhance/' + player_or_download + '/url', data={'params':request.form['params']}, timeout=1.5)
+	except Exception:
+		print('timeout in get_ios_response(). Retrying.')
+		return get_ios_response(player_or_download, retry-1)
 	origin_result_json = json.loads(origin_result.content)
 	if (player_or_download == 'player' and origin_result_json['data'][0]['url'] != None):
 		print('Returning original player result')
@@ -47,8 +59,14 @@ def get_ios_response(player_or_download):
 		song_id = str(origin_result_json['data']['id'])
 	return jsonify(get_music_resource(song_id, player_or_download))
 
-def get_music_resource(song_id, player_or_download):
-	request_result = requests.get('http://music.163.com/api/song/detail/?ids=' + quote('["' + song_id + '"]') + '&id=' + song_id)
+def get_music_resource(song_id, player_or_download, retry=10):
+	if (retry <= 0):
+		abort(502)
+	try:
+		request_result = requests.get('http://music.163.com/api/song/detail/?ids=' + quote('["' + song_id + '"]') + '&id=' + song_id, timeout=1.5)
+	except Exception:
+		print('timeout in get_music_resource(). Retrying.')
+		return get_music_resource(song_id, player_or_download, retry-1)
 	result_json = request_result.json()
 	song_res = result_json['songs'][0]['hMusic'] or result_json['songs'][0]['bMusic'] or result_json['songs'][0]['audition']
 
