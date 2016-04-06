@@ -63,3 +63,28 @@ cd /root/163-music-unlock/server	#替换为本项目下的server目录
 # iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination 223.252.199.7:443
 # iptables -t nat -A POSTROUTING -j MASQUERADE
 ```
+或者，使用SNI Proxy根据域名转发，这样服务器上可以架设多个https服务。感谢 [@Max-Sum](https://github.com/Max-Sum) 分享的SNI Proxy配置文件：  
+```
+user daemon
+pidfile /var/run/sniproxy.pid
+
+error_log {
+    syslog daemon
+    priority notice
+}
+
+listen <YOUR_SERVER_IP>:443 {
+    proto tls
+    table https_hosts
+
+    access_log {
+        filename /var/log/sniproxy/https_access.log
+        priority notice
+    }
+    fallback 127.0.0.1:443
+}
+
+table https_hosts {
+    music.163.com 223.252.199.7:443
+}
+```
