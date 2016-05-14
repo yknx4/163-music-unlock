@@ -40,6 +40,10 @@ to use `Surge` to create configuration with custom DNS maps.
 
 自行部署方法
 ----------
+
+> 放出来的代码是3月底的版本，早就不可用了，不要尝试部署了。  
+> 树大招风，闷声发大财。真正的代码不会开源。
+
 * 安装Python依赖  
 ```
 # pip install flask requests
