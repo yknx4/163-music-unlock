@@ -5,6 +5,7 @@ which unlocks regional limitations, limited and paid songs.
 
 网易云音乐客户端的反代，解除海外限制，并且可播放下架歌曲和付费歌曲（暂不能收藏）。
 
+2016.5.21 已兼容全平台客户端的最新版本(OSX 1.4.4, IOS 3.5.0, Android 3.4.1, Windows 2.0.3)  
 2016.5.10 增加PAC代理（速度快多了，设置方法见下）  
 2016.5.6 OSX客户端请降回[1.4.3客户端版本](http://s1.music.126.net/download/osx/NeteaseMusic_1.4.3_452_web.dmg)
 
@@ -15,6 +16,7 @@ which unlocks regional limitations, limited and paid songs.
 * 安卓客户端   
 * IOS客户端  
 * OSX客户端  
+* Windows客户端  
 
 当前可用host列表如下，如果加载速度缓慢可尝试换一个服务器:  
 
